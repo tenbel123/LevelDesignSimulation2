@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81abd184338ca44b862315164c9044f, type: 3}
+  m_Name: "\u888B"
+  m_EditorClassIdentifier: 
+  name: "\u888B"
+  ID: 1
+  image: {fileID: 21300000, guid: 96281732b7dd97f43848d6dec60fd16b, type: 3}
+  HP: 4
+  ATK: 3
+  exp: 5
+  MovementSpeed: 2
+  Range: 35
+  requiredPoint: 10
+  Particle: {fileID: 8780103512230258554, guid: 8e7d936eeffc6284ca555522dbab8217,
+    type: 3}
+  parentEnemyPrefab: {fileID: 0}
+  enemy1Particle1: {fileID: 0}
+  enemy1Particle2: {fileID: 0}
+  enemy2Particle1: {fileID: 128572, guid: 59e0e98094738074f83b9aac28b475cc, type: 3}
+  enemy2skill1Speed: 1500
+  enemy2Particle2: {fileID: 0}
+  enemy3Particle1: {fileID: 0}
+  enemy3Particle2: {fileID: 0}
