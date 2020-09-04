@@ -27,4 +27,11 @@ public class EnemyBabyDate : MonoBehaviour
        // LVtext.text = "LV"+LV;
    
     }
+    public void ResetDate()
+    {
+        ID = 3;
+        LV = 0;
+        Gold = 0;
+        slot = 0;
+    }
 }

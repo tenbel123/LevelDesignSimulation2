@@ -29,13 +29,15 @@ public class SummonDemonScript : MonoBehaviour
     [SerializeField] GameObject enemy3Prefab;
 
     [SerializeField] GameObject groundGameObject;
-    public List<EnemyBabyDate> enemyList;//敵のレベルやIDを入れて、召喚時に消す。
+    public EnemyBabyDate[] enemyList;
+    //   public List<EnemyBabyDate> enemyList;//敵のレベルやIDを入れて、召喚時に消す。
     public GameObject EnemySlot;//表示するやつ。
     [SerializeField] Transform enemySlotParent;
     [SerializeField] Text averageGoldText;//平均所持金
     WorldController worldController;
     [SerializeField] GameObject gridParent;
-    public  List<GameObject> slots;
+    //public GameObject[] slots;
+     public  List<GameObject> slots;
     [SerializeField] TextMeshProUGUI HPtext;
     [SerializeField] TextMeshProUGUI ATKtext;
     [SerializeField] TextMeshProUGUI Rangetext;
@@ -52,6 +54,7 @@ public class SummonDemonScript : MonoBehaviour
     void Start()
     { 
         worldController = GameObject.Find("世界の仕組みそのもの").GetComponent<WorldController>();
+        enemyList = new EnemyBabyDate[25];
      for (int i = 0; i < slots.Count; i++)
         {
             Debug.Log(i);
@@ -185,7 +188,7 @@ public class SummonDemonScript : MonoBehaviour
     public void SummonDemon()
     {
 
-        for (int i=0; i < enemyList.Count; ++i)
+        for (int i=0; i < enemyList.Length; ++i)
         {
             //Vector3 vector3;
             //vector3 = new Vector3(groundGameObject.transform.position.x + Random.Range(-20, 20),
@@ -216,15 +219,55 @@ public class SummonDemonScript : MonoBehaviour
                 enemyPrefab.GetDate(enemyList[i].LV, enemyList[i].Gold);
             }
             obj = null;
-            Destroy(enemyList[i].gameObject);
-        }
-        enemyList.Clear();
+            //Destroy(enemyList[i].gameObject);
+            enemyList[i].ResetDate();
+            slots[i].transform.GetChild(0).GetComponent<Image>().gameObject.SetActive(false);
 
+        }
+      //  enemyList.Clear();
+
+        enemyList = new EnemyBabyDate[25];
+
+        for (int i = 0; i < slots.Count; i++)//エネミーリストが消えるので、もう一度読み取る。
+        {            
+            enemyList[i] = slots[i].GetComponent<EnemyBabyDate>();
+        }
     }
     public void GridButtonClick(int aaa)
     {
         targetSlot = aaa;
+        Debug.Log("targetSlot " + targetSlot);
         UIUpdate();
        //slots[aaa].transform.GetChild(0).GetComponent<Image>().sprite = 
+    }
+    public void BossSummonDemon()
+    {
+      
+        int[] bossSummonList;
+        bossSummonList = new int[Random.Range(2, 4)];
+        Debug.Log("リストの長さ" + bossSummonList.Length);
+        
+        for(int i = 0; i < bossSummonList.Length; ++i)
+        {
+            int random = Random.Range(0, 3);
+            Vector3 vector3 = positions[Random.Range(0, positions.Count + 1)].position;
+
+            switch (random)
+            {
+                case 0:
+                    obj = Instantiate(enemy1Prefab, vector3, Quaternion.identity);
+                    break;
+
+                case 1:
+                    obj = Instantiate(enemy2Prefab, vector3, Quaternion.identity);
+
+                    break;
+                case 2:
+                    obj = Instantiate(enemy3Prefab, vector3, Quaternion.identity);
+                    break;
+            }
+        }
+
+      
     }
 }

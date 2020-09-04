@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
 
-public class INNscript : MonoBehaviour
+public class INNscript : BuildingScript
 {
     GameObject liquidationExpGameObject;
     LiquidationExp liquidationExp;
@@ -19,7 +19,7 @@ public class INNscript : MonoBehaviour
     private void Awake()
     {
         completedMaterial = GetComponent<MeshRenderer>().material;
-
+        base.ID = 1;
     }
     void Start()
     {

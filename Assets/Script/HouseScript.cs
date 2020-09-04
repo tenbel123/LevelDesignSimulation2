@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HouseScript : MonoBehaviour
+public class HouseScript : BuildingScript
 {
     Oracle oracle;
     private float FaithAmount = 10f;
+    public float PercentageFaithAmount;
     WorldController worldController; 
     public bool one = true;
     bool one2 = true;
@@ -16,7 +17,8 @@ public class HouseScript : MonoBehaviour
     int completionDay;//建築完了日
     private void Awake()
     {
-        completedMaterial = GetComponent<MeshRenderer>().material; 
+        completedMaterial = GetComponent<MeshRenderer>().material;
+        base.ID = 0;
     }
     void Start()
     {
@@ -62,8 +64,21 @@ public class HouseScript : MonoBehaviour
         if (aaa)
         {
             Debug.Log("aaa");
-            worldController.AddFaithPointPoint+= FaithAmount;
+            worldController.AddFaithPointPoint+= FaithAmount+(FaithAmount*(PercentageFaithAmount / 100));
             one = false;
         }
     }
+
+    /*public void OnTriggerStay(Collider other)//範囲に効果を及ぼす奴。未完成
+    {
+        if (other.tag == "Building")
+        {
+            if (other.gameObject.GetComponent<BuildingScript>().ID == 0)//教会だった時
+            {
+                PercentageFaithAmount = 2;
+            }
+        }
+    }*/
+
+
 }

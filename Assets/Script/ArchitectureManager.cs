@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class ArchitectureManager : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class ArchitectureManager : MonoBehaviour
     public GameObject house;
     public GameObject church;
     public GameObject blacksmith;
+    public GameObject architectureHouse;
     [SerializeField] WorldController worldController;
     float delayTime = 0;//クリックと同時に敵が生成されるのを防ぐ
     [SerializeField] Button[] buttons;
@@ -23,6 +25,7 @@ public class ArchitectureManager : MonoBehaviour
     public float INNGeneratePoint;
     public float churchGeneratePoint;
     public float blacksmithGeneratePoint;
+    public float architectureHouseGeneratePoint;
 
     public Material makkuro;//建築前の真っ黒マテリアル。建築完了したら普通に戻る。
     public enum MODE_TYPE//今何の建築をしようとしている？
@@ -32,6 +35,7 @@ public class ArchitectureManager : MonoBehaviour
         INN,
         church,
         blacksmith,
+        architectureHouse,
     }
     public MODE_TYPE type = MODE_TYPE.Neutral;
 
@@ -71,39 +75,49 @@ public class ArchitectureManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0) && delayTime > 1)
             {
                GameObject obj;
-                switch (type)
+                if (!EventSystem.current.IsPointerOverGameObject())
                 {
-                    
-                    case MODE_TYPE.Neutral:
+                    switch (type)
+                    {
 
-                        break;
-                    case MODE_TYPE.house:
-                       obj =  Instantiate(house, receiveEvent.dammy.transform.position, Quaternion.identity);
-                     
-                        obj.GetComponent<MeshRenderer>().material = makkuro;
-                        oracle.DecreaseFaith(houseGeneratePoint);
-                        worldController.architectsNumber--;
-                        break;
-                    case MODE_TYPE.INN:
-                       obj= Instantiate(INN, receiveEvent.dammy.transform.position, Quaternion.identity);
-                        obj.GetComponent<MeshRenderer>().material = makkuro;
+                        case MODE_TYPE.Neutral:
 
-                        oracle.DecreaseFaith(INNGeneratePoint);
-                        worldController.architectsNumber--;
-                        break;
-                    case MODE_TYPE.church:
-                        obj =Instantiate(church, receiveEvent.dammy.transform.position, Quaternion.identity);
-                        obj.GetComponent<MeshRenderer>().material = makkuro;
+                            break;
+                        case MODE_TYPE.house:
+                            obj = Instantiate(house, receiveEvent.dammy.transform.position, Quaternion.identity);
 
-                        oracle.DecreaseFaith(churchGeneratePoint);
-                        worldController.architectsNumber--;
-                        break;
-                    case MODE_TYPE.blacksmith:
-                        obj = Instantiate(blacksmith, receiveEvent.dammy.transform.position, Quaternion.identity);
-                        obj.GetComponent<MeshRenderer>().material = makkuro;
-                        oracle.DecreaseFaith(blacksmithGeneratePoint);
-                        worldController.architectsNumber--;
-                        break;
+                            obj.GetComponent<MeshRenderer>().material = makkuro;
+                            oracle.DecreaseFaith(houseGeneratePoint);
+                            worldController.architectsNumber--;
+                            break;
+                        case MODE_TYPE.INN:
+                            obj = Instantiate(INN, receiveEvent.dammy.transform.position, Quaternion.identity);
+                            obj.GetComponent<MeshRenderer>().material = makkuro;
+
+                            oracle.DecreaseFaith(INNGeneratePoint);
+                            worldController.architectsNumber--;
+                            break;
+                        case MODE_TYPE.church:
+                            obj = Instantiate(church, receiveEvent.dammy.transform.position, Quaternion.identity);
+                            obj.GetComponent<MeshRenderer>().material = makkuro;
+
+                            oracle.DecreaseFaith(churchGeneratePoint);
+                            worldController.architectsNumber--;
+                            break;
+                        case MODE_TYPE.blacksmith:
+                            obj = Instantiate(blacksmith, receiveEvent.dammy.transform.position, Quaternion.identity);
+                            obj.GetComponent<MeshRenderer>().material = makkuro;
+                            oracle.DecreaseFaith(blacksmithGeneratePoint);
+                            worldController.architectsNumber--;
+                            break;
+
+                        case MODE_TYPE.architectureHouse:
+                            obj = Instantiate(architectureHouse, receiveEvent.dammy.transform.position, Quaternion.identity);
+                            obj.GetComponent<MeshRenderer>().material = makkuro;
+                            oracle.DecreaseFaith(architectureHouseGeneratePoint);
+                            worldController.architectsNumber--;
+                            break;
+                    }
                 }
                
 
@@ -128,6 +142,8 @@ public class ArchitectureManager : MonoBehaviour
         if(oracle.faithPoint >= INNGeneratePoint) { buttons[1].interactable = true; } else { buttons[1].interactable = false; }
         if (oracle.faithPoint >= churchGeneratePoint) { buttons[2].interactable = true; } else { buttons[2].interactable = false; }
         if (oracle.faithPoint >= blacksmithGeneratePoint) { buttons[3].interactable = true; } else { buttons[3].interactable = false; }
+        if (oracle.faithPoint >= architectureHouseGeneratePoint) { buttons[4].interactable = true; } else { buttons[4].interactable = false; }
+
 
     }
     public void ButtonClick(int aaa)//建築ウィンドウの建物ボタンをクリック。その建物を建てるモードに切り替わる。
@@ -146,6 +162,9 @@ public class ArchitectureManager : MonoBehaviour
                 break;
             case 3:
                 type = MODE_TYPE.blacksmith;
+                break;
+            case 4:
+                type = MODE_TYPE.architectureHouse;
                 break;
            
         }

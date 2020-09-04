@@ -38,6 +38,10 @@ public class WorldController : MonoBehaviour
     public float[] averageGlod;//魔物の所持金の平均。所持ゴールドの合計をキル数で割る。
 
     public int date;//日付。
+    public  int SpawnBossDay;//ボス出現日数。5日後にスポーンすることにしようかな。
+    [SerializeField] GameObject BossPrefab;
+    [SerializeField] Vector3 BossPos;//ボスの生まれる場所
+    [SerializeField] Text spawnBossDayText;
 
     void Awake()
     {
@@ -47,6 +51,10 @@ public class WorldController : MonoBehaviour
         CalculationAverageGlod();
         //DayChanges();
 
+    }
+    private void Start()
+    {
+        CheckDay();
     }
 
     // Update is called once per frame
@@ -118,11 +126,13 @@ public class WorldController : MonoBehaviour
 );
             });
         });
-        oracle.faithPoint += AddFaithPointPoint;
+        oracle.GetFaith(AddFaithPointPoint);
+        //oracle.faithPoint += AddFaithPointPoint;
         AddFaithPointPoint = 0;
         heroPrefab.Feeling -= 10;
         CalculationAverageGlod();
         date++;
+        CheckDay();
 
 
     }
@@ -154,6 +164,20 @@ public class WorldController : MonoBehaviour
            averageGlod[i]  = totalGold[i] / (heroPrefab.kills[i]+1);
         }
          
+    }
+
+
+    //ボス関係。ボスが日数経過で出現する。
+    public void CheckDay()//日数をチェック
+    {
+        int UmareruMadeNoNissuu = SpawnBossDay - date;
+        spawnBossDayText.text = "ボス出現まで　あと" + UmareruMadeNoNissuu + "日";
+        if (UmareruMadeNoNissuu == 0) { SpawnBoss(); SpawnBossDay += SpawnBossDay; }
+        
+    }
+    public void SpawnBoss()
+    {
+         Instantiate(BossPrefab, BossPos, Quaternion.identity);
     }
 
 

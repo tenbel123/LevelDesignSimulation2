@@ -21,6 +21,13 @@ MonoBehaviour:
   MovementSpeed: 1
   Range: 8
   requiredPoint: 0
-  Particle: {fileID: 0}
+  Particle: {fileID: 8780103512230258554, guid: 8e7d936eeffc6284ca555522dbab8217,
+    type: 3}
   parentEnemyPrefab: {fileID: 0}
-  ExplosionParticle: {fileID: 0}
+  enemy1Particle1: {fileID: 0}
+  enemy1Particle2: {fileID: 0}
+  enemy2Particle1: {fileID: 0}
+  enemy2skill1Speed: 500
+  enemy2Particle2: {fileID: 0}
+  enemy3Particle1: {fileID: 0}
+  enemy3Particle2: {fileID: 0}

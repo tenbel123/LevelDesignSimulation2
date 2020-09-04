@@ -31,7 +31,7 @@ public  class Oracle : MonoBehaviour
    public  MODE_TYPE type = MODE_TYPE.Neutral;
     [SerializeField] Text modeText;//上のモードを表示する。
     [SerializeField] float DestructionPoint = 10; //障害物を消すために必要なポイント。これはあとで消したり変えたりするかも。オブジェクト毎に設定したほうがいい気がしている。
-    [SerializeField] GameObject SummonDemonParent;//悪魔召喚のウィンドウ。
+    public  GameObject SummonDemonParent;//悪魔召喚のウィンドウ。
     [SerializeField] GameObject ConstructionParent;//建設ウィンドウ
     [SerializeField] GameObject EnemySlillWindow;//敵をクリックしたときに表示するスキルウィンドウ
     Transform enemyWindowChild;//敵のウィンドウのパネル。
