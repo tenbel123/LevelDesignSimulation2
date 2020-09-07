@@ -9,6 +9,8 @@ TagManager:
   - Village
   - Building
   - Obstacle
+  - Missile
+  - Boss
   layers:
   - Default
   - TransparentFX

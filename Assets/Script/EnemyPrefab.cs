@@ -68,7 +68,7 @@ public class EnemyPrefab : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A)) { Test(); }
         if (Input.GetKeyDown(KeyCode.S)) { Damage(1); }
         if (Input.GetKeyDown(KeyCode.Y)) {GetComponent<Timeline>(); }
-       
+        if (worldController.heroDieBool) { Destroy(gameObject); }
     }
 
     public void GetDate(int lv,float gold)
@@ -113,53 +113,57 @@ public class EnemyPrefab : MonoBehaviour
         if (ID == 2) { target.gameObject.GetComponent<HeroPrefab>().damage(ATK); }
 
     }
+ 
     void FixedUpdate() 
     {
-        
-        if (Input.GetKeyDown(KeyCode.A)) { enemyDate.Test(); }
-        if (target == null) { target = null; }//ターゲットが消えたらちゃんとヒーローのターゲットも無くす。
-        if (battleflag == true) { moveflag = false; }
-        if (moveflag == true) { battleflag = false;/*agent.speed = MovementSpeed;*/agent.isStopped = false; } else { agent.isStopped = true; /*agent.speed = 0; */}
-
-
-        if (target != null)
+        if (worldController.oracle.type == Oracle.MODE_TYPE.Battle)
         {
-           
-            float distance = Vector3.Distance(target.position, transform.position);
-            if (distance <= range) { battleflag = true; }
-            else if (distance <= 15) { moveflag = true; battleflag = false; agent.destination = target.position; } else { roamflag = true;  }
-            if (moveflag == true) { }
+            if (Input.GetKeyDown(KeyCode.A)) { enemyDate.Test(); }
+            if (target == null) { target = null; }//ターゲットが消えたらちゃんとヒーローのターゲットも無くす。
+            if (battleflag == true) { moveflag = false; }
+            if (moveflag == true) { battleflag = false;/*agent.speed = MovementSpeed;*/agent.isStopped = false; } else { agent.isStopped = true; /*agent.speed = 0; */}
+
+
+            if (target != null)
+            {
+
+                float distance = Vector3.Distance(target.position, transform.position);
+                if (distance <= range) { battleflag = true; }
+                else if (distance <= 15) { moveflag = true; battleflag = false; agent.destination = target.position; } else { roamflag = true; }
+                if (moveflag == true) { }
+                else
+                {
+                    if (battleflag == true)
+                    {
+                        //バトル中に、移動を辞めているので敵の方向を向かない。ので向きを無理やり回転させる。
+                        // 補完スピードを決める
+                        float speed = 0.1f;
+                        // ターゲット方向のベクトルを取得
+                        Vector3 relativePos = target.position - transform.position;
+                        // 方向を、回転情報に変換
+                        Quaternion rotation = Quaternion.LookRotation(relativePos);
+                        // 現在の回転情報と、ターゲット方向の回転情報を補完する
+                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+                    }
+                }
+            }
             else
             {
-                 if (battleflag == true)
+
+
+
+            }
+
+            if (roamflag == true) /* 目的地付近についたら次のポイントを目指す */
+            {
+                moveflag = true;
+                if (agent.remainingDistance < 0.5f)
                 {
-                    //バトル中に、移動を辞めているので敵の方向を向かない。ので向きを無理やり回転させる。
-                    // 補完スピードを決める
-                    float speed = 0.1f;
-                    // ターゲット方向のベクトルを取得
-                    Vector3 relativePos = target.position - transform.position;
-                    // 方向を、回転情報に変換
-                    Quaternion rotation = Quaternion.LookRotation(relativePos);
-                    // 現在の回転情報と、ターゲット方向の回転情報を補完する
-                    transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+                    GotoNextPoint();
                 }
             }
         }
-        else
-        {
-           
-            
-            
-        }
-       
-        if (roamflag == true) /* 目的地付近についたら次のポイントを目指す */
-        {
-            moveflag = true;
-            if (agent.remainingDistance < 0.5f)
-            {
-                GotoNextPoint();
-            }
-        }
+
     }
     GameObject serchTag(GameObject nowObj, string tagName)
     {
@@ -238,8 +242,14 @@ public class EnemyPrefab : MonoBehaviour
     }
     public void OnDestroy()
     {
-        heroPrefab.gold += money;
+        if (heroPrefab.gameObject.GetComponent<HeroController>().serchTag(gameObject,"Enemy"))
+        {
+            Debug.Log("次の敵探すよ");
+            heroPrefab.gameObject.GetComponent<HeroController>().target = heroPrefab.gameObject.GetComponent<HeroController>().serchTag(gameObject, "Enemy").transform;
+        }
+            heroPrefab.gold += money;
         heroPrefab.kills[ID] += 1;
+        heroPrefab.killsInstant[ID] += 1;
         worldController.totalGold[ID] += money;
         heroPrefab.Feeling += (money - worldController.averageGlod[ID]) / worldController.averageGlod[ID] * 10f;//平均所持金と魔物のお金の差があればあるほど気分に差が出る計算。最後の２０ｆとは、無かったら少なすぎるので入れてる。この数値も建物のレベルアップなどで変更したらいいかも。
         Instantiate(destroyParticle, transform.position, Quaternion.identity);

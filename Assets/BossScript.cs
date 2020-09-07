@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using DG.Tweening;
+
 
 public class BossScript : MonoBehaviour
 {
@@ -16,12 +18,14 @@ public class BossScript : MonoBehaviour
     public HeroPrefab heroPrefab;
     WorldController worldController;
     [SerializeField] GameObject damageTextPrefab;//攻撃食らったときにダメージを数値として出すUIの奴。
-    bool battleMode;
+   public  bool battleMode;
     float distance;//勇者との距離
     SummonDemonScript summonDemonScript;
+    public int raidCount = 0;//襲撃の回数。
 
     private void Awake()
     {
+        raidCount = 0;
         summonDemonScript = GameObject.Find("FaithButton").GetComponent<Oracle>().SummonDemonParent.GetComponent<SummonDemonScript>();
     }
     private void Start()
@@ -35,8 +39,6 @@ public class BossScript : MonoBehaviour
         }
         catch { target = null; Debug.Log("aaa"); }
         battleMode = false;
-
-        battleMode = true;
         StartCoroutine("AttackAnimeStart");
 
     }
@@ -72,18 +74,21 @@ public class BossScript : MonoBehaviour
     public void FixedUpdate()
     {
        distance = Vector3.Distance(target.position, transform.position);
-    }
-    public float actionSpeed = 1f;
+   　　if(battleMode == false) { gameObject.transform.position = summonDemonScript.bossPosition; }
+
+}
+public float actionSpeed = 1f;
     IEnumerator AttackAnimeStart()
     {
 
         while (true)
         {
+            yield return new WaitForSeconds(actionSpeed);
             if (battleMode)
             {
                 action();
             }
-            yield return new WaitForSeconds(actionSpeed);
+            
         }
     }
     public void action()
@@ -121,7 +126,7 @@ public class BossScript : MonoBehaviour
         }
         if (aaa == "skill1") { Debug.Log("skill1"); }
         if (aaa == "summon") { 
-            //summonDemonScript.BossSummonDemon(); Debug.Log("summon"); 
+            summonDemonScript.BossSummonDemon(); Debug.Log("summon"); 
         }
 
 
@@ -141,5 +146,20 @@ public class BossScript : MonoBehaviour
                   }
                   break;
           }*/
+    }
+    public void Damage(float damage)
+    {
+        Vector3 pos = transform.position;
+        var aaa = Instantiate(damageTextPrefab, pos, Quaternion.identity);
+        aaa.GetComponent<DamageText>().Number(damage);
+        //aaa.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = damage.ToString();
+        HP -= damage;
+        transform.DOJump(transform.forward * -2, 1, 1, 1f).SetRelative().SetEase(Ease.OutExpo);
+
+        if (HP <= 0)
+        {
+            Destroy(gameObject);
+        }
+
     }
 }

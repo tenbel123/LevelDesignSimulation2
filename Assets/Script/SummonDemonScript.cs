@@ -44,7 +44,8 @@ public class SummonDemonScript : MonoBehaviour
     [SerializeField] TextMeshProUGUI MStext;
     [SerializeField] TextMeshProUGUI EXPtext;
     public int targetSlot;//どのグリッドを選択しているか
-    [SerializeField] List<Transform> positions;
+    public  List<Transform> positions;
+    public Vector3 bossPosition;//ボスがいる玉座の位置。
 
     private void Awake()
     {
@@ -222,7 +223,6 @@ public class SummonDemonScript : MonoBehaviour
             //Destroy(enemyList[i].gameObject);
             enemyList[i].ResetDate();
             slots[i].transform.GetChild(0).GetComponent<Image>().gameObject.SetActive(false);
-
         }
       //  enemyList.Clear();
 
@@ -232,6 +232,7 @@ public class SummonDemonScript : MonoBehaviour
         {            
             enemyList[i] = slots[i].GetComponent<EnemyBabyDate>();
         }
+        oracle.BattleStart();
     }
     public void GridButtonClick(int aaa)
     {
@@ -250,7 +251,7 @@ public class SummonDemonScript : MonoBehaviour
         for(int i = 0; i < bossSummonList.Length; ++i)
         {
             int random = Random.Range(0, 3);
-            Vector3 vector3 = positions[Random.Range(0, positions.Count + 1)].position;
+            Vector3 vector3 = positions[Random.Range(0, positions.Count )].position;
 
             switch (random)
             {

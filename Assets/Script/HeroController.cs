@@ -22,16 +22,22 @@ public class HeroController : MonoBehaviour
         roam,
         move,
         GoToINN,
+        die,
+
     }
     public MODE_TYPE type = MODE_TYPE.roam;
 
+    public void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+
+    }
     // Start is called before the first frame update
     void Start()
     {
         type = MODE_TYPE.roam;
-        agent = GetComponent<NavMeshAgent>();
-        agent.speed = heroPrefab.movementSpeed;
-        animator = GetComponent<Animator>();
+        agent.speed = heroPrefab.movementSpeed;     
         StartCoroutine("FindPurpose");
         StartCoroutine("AttackAnimeStart");
 
@@ -40,15 +46,29 @@ public class HeroController : MonoBehaviour
         GotoNextPoint();
 
     }
-    public float span = 0.5f;
+    public float span = 5f;
     IEnumerator FindPurpose()//次の目的を探す。span秒ごとに呼ばれる。
     {
         while (true)
         {
-
+            target = null;
+            Debug.Log("yobareta");
             if (serchTag(gameObject, "Enemy") == null) { }
-            else if (!(type == MODE_TYPE.GoToINN)) { target = serchTag(gameObject, "Enemy").transform; } //敵を探す。
+            else if (!(type == MODE_TYPE.GoToINN)) 
+            { 
+                target = serchTag(gameObject, "Enemy").transform;
+                Debug.Log("よばれた");
+               
 
+            } //敵を探す。
+            if (target == null)
+            {
+                if (heroPrefab.worldController.bossScript.battleMode == true)
+                {
+                    Debug.Log("ボス検索");
+                    target = serchTag(gameObject, "Boss").transform;
+                }
+            }
 
             yield return new WaitForSeconds(span);
         }
@@ -67,56 +87,13 @@ public class HeroController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (target == null) { target = null; }//ターゲットが消えたらちゃんとヒーローのターゲットも無くす。
-                                              // if (toVillage != true) {
 
-        // if (battleflag == true) { moveflag = false; roamflag = false; }
-        if (type == MODE_TYPE.move || type == MODE_TYPE.roam|| type == MODE_TYPE.GoToINN) { animator.SetBool("Run", true);  agent.isStopped = false; } else { animator.SetBool("Run", false); agent.isStopped = true; }
-
-            if (target != null)
-            {
-               
-                float distance = Vector3.Distance(target.position, transform.position);
-                if (distance <= 7) { if (target.tag == "Enemy") { type = MODE_TYPE.battle; } }
-                else if (distance <= 30) { type = MODE_TYPE.move;  agent.destination = target.position;} else { if (target.tag == "Village") { agent.destination = target.position; } else { type = MODE_TYPE.move; target = null; } }
-
-            if (type == MODE_TYPE.move) {  }
-            else
-            {
-                if (!(type==MODE_TYPE.GoToINN))
-                {
-                   // agent.speed = 0;  /*transform.LookAt(target);*/
-                    if (type== MODE_TYPE.battle)
-                    {
-                        //バトル中に、移動を辞めているので敵の方向を向かない。ので向きを無理やり回転させる。
-                        // 補完スピードを決める
-                        float speed = 0.1f;
-                        // ターゲット方向のベクトルを取得
-                        Vector3 relativePos = target.position - transform.position;
-                        // 方向を、回転情報に変換
-                        Quaternion rotation = Quaternion.LookRotation(relativePos);
-                        // 現在の回転情報と、ターゲット方向の回転情報を補完する
-                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
-                    }
-                }
-            }
-            }
-            else {
-            type = MODE_TYPE.roam;
-            }
-        /* 目的地付近についたら次のポイントを目指す */
-        if (type ==MODE_TYPE.roam)
+        if(!(type == MODE_TYPE.die)) { Breathing(); }
+        else
         {
-            
-            if (agent.remainingDistance < 0.5f)
-            {
-                GotoNextPoint();
-            }
+            agent.isStopped = true;
         }
-        // }
-        // else { Debug.Log("matiniikitai"); agent.speed = 2;
-        //       agent.destination = target.position;
-        //  }
+        
     }
 
     /*------------------------*/
@@ -146,11 +123,85 @@ public class HeroController : MonoBehaviour
         agent.destination = points[destPoint];
     }
 
+    private void Breathing()//呼吸という意味。普段からやってる行いのこと。
+    {
+        if (target == null) { target = null; }//ターゲットが消えたらちゃんとヒーローのターゲットも無くす。
+                                              // if (toVillage != true) {
+
+        // if (battleflag == true) { moveflag = false; roamflag = false; }
+        if (type == MODE_TYPE.move || type == MODE_TYPE.roam || type == MODE_TYPE.GoToINN) { animator.SetBool("Run", true); agent.isStopped = false; } else { animator.SetBool("Run", false); agent.isStopped = true; }
+
+        if (target != null)
+        {
+
+            float distance = Vector3.Distance(target.position, transform.position);
+            if (distance <= 7)
+            {
+                if (target.tag == "Enemy") { type = MODE_TYPE.battle; }
+                if (target.tag == "Boss") { type = MODE_TYPE.battle; }
+            }
+            else if (distance <= 50)
+            {
+                type = MODE_TYPE.move;
+                agent.destination = target.position;
+            }
+            else
+            {
+                if (target.tag == "Village")
+                {
+                    agent.destination = target.position;
+                }
+                else
+                {
+                    type = MODE_TYPE.move;
+                    target = null;
+                }
+            }
+
+            if (type == MODE_TYPE.move) { }
+            else
+            {
+                if (!(type == MODE_TYPE.GoToINN))
+                {
+                    // agent.speed = 0;  /*transform.LookAt(target);*/
+                    if (type == MODE_TYPE.battle)
+                    {
+                        //バトル中に、移動を辞めているので敵の方向を向かない。ので向きを無理やり回転させる。
+                        // 補完スピードを決める
+                        float speed = 0.1f;
+                        // ターゲット方向のベクトルを取得
+                        Vector3 relativePos = target.position - transform.position;
+                        // 方向を、回転情報に変換
+                        Quaternion rotation = Quaternion.LookRotation(relativePos);
+                        // 現在の回転情報と、ターゲット方向の回転情報を補完する
+                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+                    }
+                }
+            }
+        }
+        else
+        {
+            type = MODE_TYPE.roam;
+        }
+        /* 目的地付近についたら次のポイントを目指す */
+        if (type == MODE_TYPE.roam)
+        {
+
+            if (agent.remainingDistance < 0.5f)
+            {
+                GotoNextPoint();
+            }
+        }
+        // }
+        // else { Debug.Log("matiniikitai"); agent.speed = 2;
+        //       agent.destination = target.position;
+        //  }
+    }
     public void DownToVillageButton()
     {
         type = MODE_TYPE.GoToINN; target = serchTag(gameObject, "Village").transform;Debug.Log("よばれた");
     }
-    GameObject serchTag(GameObject nowObj, string tagName)
+   public GameObject serchTag(GameObject nowObj, string tagName)
     {
 
         float tmpDis = 0;           //距離用一時変数
@@ -175,9 +226,9 @@ public class HeroController : MonoBehaviour
 
 
         }
-        //最も近かったオブジェクトを返す
+      //最も近かったオブジェクトを返す
       //  Debug.Log(nearObjName);
-        //return GameObject.Find(nearObjName);
+      //return GameObject.Find(nearObjName);
          return targetObj;
     }
 

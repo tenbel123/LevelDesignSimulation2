@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
+using UnityEngine.AI;
 
 public class INNscript : BuildingScript
 {
@@ -16,9 +17,12 @@ public class INNscript : BuildingScript
     [SerializeField] int requiredDays;//完成までに必要な日数。
     int firstDay;//建築開始日
     int completionDay;//建築完了日
+    Oracle oracle;
+    NavMeshObstacle navMeshObstacle;
     private void Awake()
     {
         completedMaterial = GetComponent<MeshRenderer>().material;
+        navMeshObstacle = GetComponent<NavMeshObstacle>();
         base.ID = 1;
     }
     void Start()
@@ -28,6 +32,7 @@ public class INNscript : BuildingScript
         hero = GameObject.Find("Hero");
         heroController = hero.GetComponent<HeroController>();
         worldController = GameObject.Find("世界の仕組みそのもの").GetComponent<WorldController>();
+       // oracle = worldController.oracle;
     
         firstDay = worldController.date;
         completionDay = firstDay + requiredDays;
@@ -46,6 +51,14 @@ public class INNscript : BuildingScript
         if (completed)
         {
             if (one2) { GetComponent<MeshRenderer>().material = completedMaterial; one2 = false; }
+        }
+        if(heroController.type == HeroController.MODE_TYPE.GoToINN)
+        {
+            navMeshObstacle.enabled = false;
+        }
+        else
+        {
+            navMeshObstacle.enabled = true;
         }
             //if(heroController.toINNflag == true) { this.gameObject.GetComponent<MeshCollider>().isTrigger = true; }
             //else{ this.gameObject.GetComponent<MeshCollider>().isTrigger = false; }

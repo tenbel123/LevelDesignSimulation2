@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6723791155167338082}
   - component: {fileID: 6723791153756818614}
   - component: {fileID: 6723791155165331617}
+  - component: {fileID: 239213448726803826}
   m_Layer: 0
   m_Name: "\u5BBF\u5C4B"
   m_TagString: Village
@@ -110,3 +111,19 @@ MonoBehaviour:
   ID: 1
   completedMaterial: {fileID: 0}
   requiredDays: 3
+--- !u!208 &239213448726803826
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6723791155165331618}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 5.631, y: 4.9690003, z: 5.6530004}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.17600001, y: 3.969, z: -0.05}
+  m_TimeToStationary: 0.5

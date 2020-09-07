@@ -26,8 +26,8 @@ public class WorldController : MonoBehaviour
     [SerializeField] Button OKButton;
 
    [SerializeField] HeroController heroController;
-    [SerializeField] HeroPrefab heroPrefab;
-   [SerializeField] Oracle oracle;
+    public  HeroPrefab heroPrefab;
+   public Oracle oracle;
 
     public float AddFaithPointPoint;//夜になる時にもらえる信仰ポイント
     public int MaxArchitectsNumber;//建築士の人数
@@ -43,12 +43,17 @@ public class WorldController : MonoBehaviour
     [SerializeField] Vector3 BossPos;//ボスの生まれる場所
     [SerializeField] Text spawnBossDayText;
 
+    public BossScript bossScript;
+    public bool heroDieBool;//この日勇者が死んだかどうか。死んでたら、経験値は貰えないようにする。
+
+    public Vector3 battleStartPosition;
     void Awake()
     {
 
-        RenderSettings.skybox = nightSkyBox; RenderSettings.fogColor = nightFogColor.color; nightLight.SetActive(true); dayLight.SetActive(false); night = true;
+        RenderSettings.skybox = daySkyBox; RenderSettings.fogColor = dayFogColor.color; nightLight.SetActive(false); dayLight.SetActive(true); night = false;
         architectsNumber = MaxArchitectsNumber;
         CalculationAverageGlod();
+        heroDieBool = false;
         //DayChanges();
 
     }
@@ -72,29 +77,27 @@ public class WorldController : MonoBehaviour
     public void DayChanges()
     {
         Debug.Log("dayChanges");
-        if (night == false) 
+        if (night == true) 
         { 
-            Debug.Log("夜になれ"); 
             feedObj.DOFade(1f, 3f).OnComplete(() =>
             {
-                RenderSettings.skybox = nightSkyBox;
-                RenderSettings.fogColor = nightFogColor.color;
-                nightLight.SetActive(true);
-                dayLight.SetActive(false);
-                night = true; Result(); 
+                RenderSettings.skybox = daySkyBox;
+                RenderSettings.fogColor = dayFogColor.color;
+                nightLight.SetActive(false);
+                dayLight.SetActive(true);
+                night = false; Result(); 
             }); 
         }
-        else if (night == true)
+        else if (night == false)
         {
-            Debug.Log("昼になれ"); 
             feedObj.DOFade(1f, 3f).OnComplete(() =>
             {
                 feedObj.DOFade(0f, 2.5f);
-                RenderSettings.skybox = daySkyBox; 
-                RenderSettings.fogColor = dayFogColor.color; 
-                nightLight.SetActive(false);
-                dayLight.SetActive(true);
-                night = false;
+                RenderSettings.skybox = nightSkyBox; 
+                RenderSettings.fogColor = nightFogColor.color; 
+                nightLight.SetActive(true);
+                dayLight.SetActive(false);
+                night = true;
                 heroController.target = null; 
             }); 
         }
@@ -114,9 +117,16 @@ public class WorldController : MonoBehaviour
     Debug.Log("nannde");
     HeroHUD.DOLocalMove(position, 1.8f).OnComplete(() =>
     {
-        Debug.Log("oioi");
-        liquidationExp.Liquidation();
-        bonusExpText.text = "×" + (1 / liquidationExp.HPdifference).ToString();
+        if (!heroDieBool)
+        {
+            liquidationExp.Liquidation();
+            bonusExpText.text = "×" + (1 / liquidationExp.HPdifference).ToString();
+        }
+        else
+        {
+            liquidationExp.Liquidation();
+            bonusExpText.text = "0";
+        }
         //bonusExpText.gameObject.SetActive(true);
 
         
@@ -129,10 +139,17 @@ public class WorldController : MonoBehaviour
         oracle.GetFaith(AddFaithPointPoint);
         //oracle.faithPoint += AddFaithPointPoint;
         AddFaithPointPoint = 0;
+        
         heroPrefab.Feeling -= 10;
+        heroPrefab.AbilitGrowth();
         CalculationAverageGlod();
         date++;
         CheckDay();
+        for (int i=0; heroPrefab.killsInstant.Length>i;i++)
+        {
+            heroPrefab.killsInstant[i] = 0;
+            Debug.Log("何回呼ばれた");
+        }
 
 
     }
@@ -152,7 +169,8 @@ public class WorldController : MonoBehaviour
         texts[2].DOFade(0f, 1f);
         bonusExpText.gameObject.SetActive(false);
         HeroHUD.DOLocalMove(new Vector3(0, 0, 0), 1.5f).OnComplete(() => {  feedObj.DOFade(0f, 2f).SetDelay(1.8f); });
-        
+        heroDieBool = false;
+        heroPrefab.Revive();
     }
 
     public void CalculationAverageGlod()//魔物ごとの平均所持金を計算。魔物合計所持金÷キル数
@@ -171,14 +189,29 @@ public class WorldController : MonoBehaviour
     public void CheckDay()//日数をチェック
     {
         int UmareruMadeNoNissuu = SpawnBossDay - date;
-        spawnBossDayText.text = "ボス出現まで　あと" + UmareruMadeNoNissuu + "日";
-        if (UmareruMadeNoNissuu == 0) { SpawnBoss(); SpawnBossDay += SpawnBossDay; }
+        spawnBossDayText.text = "ボス襲撃まで　あと" + UmareruMadeNoNissuu + "日";
+        if (UmareruMadeNoNissuu == 0) { SpawnBoss(); SpawnBossDay += SpawnBossDay; } else { bossScript.battleMode = false; }
         
     }
-    public void SpawnBoss()
+    public void SpawnBoss()//ボス襲撃開始。
     {
-         Instantiate(BossPrefab, BossPos, Quaternion.identity);
+        bossScript.raidCount++;
+        bossScript.battleMode = true;
+        bossScript.gameObject.transform.position = oracle.SummonDemonParent.GetComponent<SummonDemonScript>().positions[2].position;   
     }
 
+    public void HeroDie()
+    {
+        if (bossScript.battleMode == true)
+        {
+            heroPrefab.Feeling -= 30 + (bossScript.raidCount*10);//ボスの襲撃回数が多いほど気分は下がっていく。何回も負けたら嫌な気分になるもんね。
+        }
+        else
+        {
+            heroPrefab.Feeling -= 30;
+        }
+        heroDieBool = true;
+        DayChanges();
+    }
 
 }

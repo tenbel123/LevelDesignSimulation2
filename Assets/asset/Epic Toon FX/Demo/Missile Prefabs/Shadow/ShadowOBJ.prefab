@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 5479992}
   - component: {fileID: 11464288}
   - component: {fileID: -2032106199170022788}
+  - component: {fileID: 742893792806337206}
+  - component: {fileID: 2730908604732759317}
   m_Layer: 0
   m_Name: ShadowOBJ
   m_TagString: Missile
@@ -92,3 +94,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40cbc087a5cb23e40afc299bae4567ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &742893792806337206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 128572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6090da511f8374135a15dd8655adcd44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _recordingInterval: 0.5
+  _mode: 1
+  _globalClockKey: Root
+  _rewindable: 1
+  _recordingDuration: 30
+--- !u!114 &2730908604732759317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 128572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e02c4a0d9b6c47e09fc7c7924d2b953, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _localTimeScale: 1
+  _paused: 0
+  _parentKey: Root
+  _parentBlend: 0

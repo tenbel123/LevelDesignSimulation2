@@ -7,7 +7,7 @@ public class HeroPrefab : MonoBehaviour
 {
     //[SerializeField] HeroDate heroDate;
     HeroController heroController;
-    [SerializeField] WorldController worldController;
+    public  WorldController worldController;
    public float HP;
     public float MaxHP;
     public float ATK;
@@ -32,15 +32,18 @@ public class HeroPrefab : MonoBehaviour
     public float Feeling;//気分
 
     //ここからは才能ability 基本的にこれらの数値を上げ下げして、スキルの素質を発現する（特殊な行動をしないと覚えないスキルも山ほどある）。そのあとは神が信仰心を使って勇者にスキルを与える。
-    public float IceAbility;
-    public float FrameAbility;
-    public float ThunderAbility;
-    public float braveAbility;//勇気
-    public float composureAbility;//冷静
-    public float intuitionAbility;//直感
+    public float iceAbility;
+    public float frameAbility;
+    public float thunderAbility;
+    public float waterAbility;
+    public float braveAbility;//勇気。タイマン寄り。単体火力や単純なバフ。
+    public float composureAbility;//冷静。狡猾なスキル寄り。
+    public float gloryAbility;//栄光。殲滅より。派手なスキル。AOE
     public float nostalgiaAbility;//郷愁 寄り道をしたがる?　というか、町への愛着の数値。町を勇者に愛されるように構築していくことも必要だということ。
 
-    public float[] kills;//その敵を何体倒したか。
+    public float[] kills;//その敵を何体倒したか。合計。
+    public int[] killsInstant;//その日倒した限定の敵の数。
+    public List<string> skills = new List<string>();
 
 
 
@@ -77,7 +80,8 @@ public class HeroPrefab : MonoBehaviour
         expText.text = "EXP:" + exp.ToString("f1")+"/"+NextLvUpExp.ToString("f1");
         LVtext.text = "LV:"+LV.ToString();
         HPtext.text = HP + "/" + MaxHP;
-       
+
+        if (Input.GetKeyDown(KeyCode.G)) { AbilitGrowth(); CheckSlill(); }
     }
     public void LvUp()
     {
@@ -96,7 +100,17 @@ public class HeroPrefab : MonoBehaviour
     {
         Debug.Log("勇者の攻撃");
         trailRenderer.emitting = false;
-        if (heroController.target != null && heroController.type == HeroController.MODE_TYPE.battle) { heroController.target.gameObject.GetComponent<EnemyPrefab>().Damage(ATK); }
+        if (heroController.target != null && heroController.type == HeroController.MODE_TYPE.battle)
+        {
+            if (heroController.target.tag == "Enemy")
+            {
+                heroController.target.gameObject.GetComponent<EnemyPrefab>().Damage(ATK);
+            }
+            if(heroController.target.tag == "Boss")
+            {
+                heroController.target.gameObject.GetComponent<BossScript>().Damage(ATK);
+            }
+        }
     }
     public void damage(float damage)
     {
@@ -104,6 +118,11 @@ public class HeroPrefab : MonoBehaviour
         if(HP <= 0)
         {
             Die();
+        }
+        else
+        {
+            heroController.animator.SetTrigger("GetHit");
+            trailRenderer.emitting = false;
         }
         //slider.value = HP;
     }
@@ -114,7 +133,130 @@ public class HeroPrefab : MonoBehaviour
     public void Die()
     {
         heroController.animator.SetTrigger("Die");
+        heroController.type = HeroController.MODE_TYPE.die;
         heroController.agent.isStopped = true;
+        worldController.HeroDie();
+
+
     }
+    public void Revive()
+    {
+        HP = MaxHP;
+        heroController.type = HeroController.MODE_TYPE.roam;
+        heroController.animator.SetTrigger("Revive");
+    }
+
+    public void AbilitGrowth()
+    {
+       float killNumber = 0;//キル数の合計。その日の
+       foreach(float kill in killsInstant)
+        {
+            killNumber += kill;
+        }
+        switch (killNumber)
+        {
+            case 1:
+                GetAbility("brave", 5);
+                GetAbility("glory", 1);
+                break;
+            case 2:
+                GetAbility("brave", 4);
+                GetAbility("glory", 2);
+                break;
+            case 3:
+                GetAbility("brave", 3);
+                GetAbility("glory", 3);
+                break;
+            case 4:
+                GetAbility("brave", 2);
+                GetAbility("glory", 4);
+
+                break;
+            case 5:
+                GetAbility("brave", 1);
+                GetAbility("glory", 5);
+                break;
+        }
+        if ((HP / MaxHP) >= 0.1f)
+        {
+           // GetAbility("composure", 1);
+        }
+        else if ((HP / MaxHP) >= 0.2f)
+        {
+           // GetAbility("composure", 5);
+        }
+        else if ((HP / MaxHP) >= 0.3f)
+        {
+            GetAbility("composure", 1);
+        }
+        else if ((HP / MaxHP) >= 0.4f)
+        {
+            GetAbility("composure", 2);
+        }
+        else if ((HP / MaxHP) >= 0.5f)
+        {
+            GetAbility("composure", 3);
+        }
+        else if ((HP / MaxHP) >= 0.6f)
+        {
+            GetAbility("composure", 4);
+        }
+        else if ((HP / MaxHP) >= 0.7f)
+        {
+            GetAbility("composure", 5);
+        }
+
+        GetAbility("thunder", killsInstant[0]);
+        GetAbility("water", killsInstant[1]);
+        GetAbility("frame", killsInstant[2]);
+
+
+        Debug.Log("HP/MaxHP" + HP / MaxHP);
+
+    }
+    public void GetAbility(string name, int suuti)
+    {
+        switch (name)
+        {
+            case "ice":
+                iceAbility += suuti;
+                break;
+            case "frame":
+                frameAbility += suuti;
+                break;
+            case "thunder":
+                thunderAbility += suuti;
+                break;
+            case "water":
+                waterAbility += suuti;
+                break;
+            case "brave":
+                braveAbility += suuti;
+                break;
+            case "composure":
+                composureAbility += suuti;
+                break;
+            case "glory":
+                gloryAbility += suuti;
+                break;
+            default:
+                Debug.Log("GetAbility()エラー！！！！");
+                break;
+        }
+}
+    public void CheckSlill()//スキルを発現するに値するか
+    {
+        
+        if(braveAbility >= 10) { if (!skills.Contains("smash")) { skills.Add("smash"); } }
+        if(composureAbility >= 10) { if (!skills.Contains("PowerUp")) { skills.Add("PowerUp"); } }
+        if (iceAbility >= 10) { if (!skills.Contains("slow")) { skills.Add("slow"); } }
+        if (frameAbility >= 10) { if (!skills.Contains("fire")) { skills.Add("fire"); } }
+        if (thunderAbility >= 10) { if (!skills.Contains("thunder")) { skills.Add("thunder"); } }
+        if (waterAbility >= 10) { if (!skills.Contains("water")) { skills.Add("water"); } }
+
+
+
+    }
+
 
 }

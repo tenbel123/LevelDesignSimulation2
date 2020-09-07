@@ -30,7 +30,16 @@ public class LiquidationExp: MonoBehaviour
         Debug.Log("経験値清算");
         HPdifference = 1 - ((hero.MaxHP - hero.HP) / hero.MaxHP);
         float HP = hero.HP;
-        DOTween.To(() => hero.HP,(n) =>hero.HP = n,hero.MaxHP, 2f).OnComplete(() => { hero.exp += Mathf.Floor(hero.expStorage * (1 / HPdifference) * 100) / 100;ExpTable(); worldController.Result2(); });
+        Debug.Log("どこまで呼ばれてる？");
+        DOTween.To(() => hero.HP,(n) =>hero.HP = n,hero.MaxHP, 2f).OnComplete(() => 
+        {
+            if (!(hero.gameObject.GetComponent<HeroController>().type == HeroController.MODE_TYPE.die)) 
+            { 
+                hero.exp += Mathf.Floor(hero.expStorage * (1 / HPdifference) * 100) / 100;
+                ExpTable(); 
+            }
+            worldController.Result2();
+        });
     }
     public void bbb()
     {

@@ -37,11 +37,13 @@ public class CameraRotator : MonoBehaviour
     private Vector2 ParentAngle = new Vector2(0, 0);
     [SerializeField] Slider slider;　//カメラの高さ。地面に近かったり遠かったり。
     float depth; //上のバリュー
+    [SerializeField] Vector3 StartPosition;
 
 
     private void Awake()
     {
         slider.value = 13;
+        ParentPosition = StartPosition;
     }
     void Update()
     {

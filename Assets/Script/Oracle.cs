@@ -20,6 +20,7 @@ public  class Oracle : MonoBehaviour
     //[SerializeField] Button thunderbolt;
     // Start is called before the first frame update
     EnemyPrefab targetEnemyPrefab;
+    [SerializeField] WorldController worldController;
     public enum MODE_TYPE//今何モード？破壊？生成？ニュートラル？
     {
         Neutral,
@@ -177,7 +178,11 @@ public  class Oracle : MonoBehaviour
     }
     public void BattleStart()//バトル開始ボタンを押したとき。今のところ仮で入れてる。
     {
+        SummonDemonParent.SetActive(false); ConstructionParent.SetActive(false);
         type = MODE_TYPE.Battle;
+        worldController.heroPrefab.transform.position = worldController.battleStartPosition;
+        worldController.heroPrefab.gameObject.GetComponent<HeroController>().target = worldController.heroPrefab.gameObject.GetComponent<HeroController>().serchTag(gameObject, "Enemy").transform;
+
     }
     public void ClickEnemy()//ClickIbent()で魔物がクリックされたと判定された時、その魔物の詳細を表示するなど。
     {
@@ -191,7 +196,5 @@ public  class Oracle : MonoBehaviour
         Texts[5].GetComponent<TextMeshProUGUI>().text = "ATK:"+targetEnemyPrefab.ATK;
         Texts[6].GetComponent<TextMeshProUGUI>().text = "Range:"+targetEnemyPrefab.range;
         Texts[7].GetComponent<TextMeshProUGUI>().text = "MS:" + targetEnemyPrefab.MovementSpeed;
-
-
     }
 }

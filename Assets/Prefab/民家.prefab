@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 337247569125775650}
   - component: {fileID: 5797006845961250282}
   - component: {fileID: 3233688386057462140}
+  - component: {fileID: 3758875666705342049}
   m_Layer: 0
   m_Name: "\u6C11\u5BB6"
   m_TagString: Building
@@ -108,8 +109,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c17c6ea8c5201ba458ef293da234c7ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ID: 0
+  PercentageFaithAmount: 0
   one: 1
+  completedMaterial: {fileID: 0}
   requiredDays: 1
+--- !u!208 &3758875666705342049
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337247569127770082}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 4.2060003, y: 3.2050002, z: 4.532}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.15100001, y: 2.2050002, z: -0.272}
+  m_TimeToStationary: 0.5
 --- !u!1 &4171462946973738658
 GameObject:
   m_ObjectHideFlags: 0
